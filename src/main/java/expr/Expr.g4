@@ -1,214 +1,43 @@
-/*
- * Copyright 2014 Bernd Vogt and others.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-grammar Java;
-
-@header {
-package org.sourcepit.antlr4.java8;
-}
-
-//http://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#jls-TypeName
-typeName:'typeName';
-expressionName:'expressionName';
-methodName:'methodName';
-
-//Productions from §4 (Types, Values, and Variables)
-//Deps:
-//- annotation
-typeArguments:'typeArguments';
-referenceType:'referenceType';
-classType:'classType';
-arrayType:'arrayType';
-primitiveType:'primitiveType';
-dims:'dims';
-additionalBound:'additionalBound';
-
-//Productions from §9 (Interfaces)
-//Deps:
-//- conditionalExpression
-//- methodBody (classes)
-annotation:'annotation';
-
-//Productions from §8 (Classes)
-//- annotation (interfaces)
-//- block
-//- argumentList (expressions)
-classBody:'classBody';
-classOrInterfaceType:'classOrInterfaceType';
-formalParameterList:'formalParameterList';
-
-//Productions from §10 (Arrays)
-//- variableInitializer (classes)
-arrayInitializer:'arrayInitializer';
-
-//Productions from §14 (Blocks and Statements)
-//- classDeclaration,.. (classes)
-//- assignment,... (expressions)
-block:'block';
-
-primary
-:
-	primaryNoNewArray
-	| arrayCreationExpression
-;
-
-primaryNoNewArray
-:
-	literal
-	| typeName ('[' ']')? '.' 'class'
-	| 'void' '.' 'class'
-	| 'this'
-	| typeName '.' 'this'
-	| '(' expression ')'
-	| classInstanceCreationExpression
-	| fieldAccess
-	| arrayAccess
-	| methodInvocation
-	| methodReference
-;
-
-classInstanceCreationExpression
-:
-	'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '('	argumentList? ')' classBody?
-	| expressionName '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
-//	| primary '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
-;
-
-typeArgumentsOrDiamond
-:
-	typeArguments
-	| '<' '>'
-;
-
-fieldAccess
-:
-//	primary '.' Identifier
-//	|
-	 'super' '.' Identifier
-	| typeName '.' 'super' '.' Identifier
-;
-
-arrayAccess
-:
-	expressionName '[' expression ']'
-//	| primaryNoNewArray '[' expression ']'
-;
-
-methodInvocation
-:
-	methodName '(' argumentList? ')'
-	| typeName '.' typeArguments? Identifier '(' argumentList? ')'
-	| expressionName '.' typeArguments? Identifier '(' argumentList? ')'
-//	| primary '.' typeArguments? Identifier '(' argumentList? ')'
-	| 'super' '.' typeArguments? Identifier '(' argumentList? ')'
-	| typeName '.' 'super' '.' typeArguments? Identifier '(' argumentList? ')'
-;
-
-argumentList
-:
-	expression
-	(
-		',' expression
-	)*
-;
-
-methodReference
-:
-	expressionName '::' typeArguments? Identifier
-	| referenceType '::' typeArguments? Identifier
-//	| primary '::' typeArguments? Identifier
-	| 'super' '::' typeArguments? Identifier
-	| typeName '.' 'super' '::' typeArguments? Identifier
-	| classType '::' typeArguments? 'new'
-	| arrayType '::' 'new'
-;
-
-arrayCreationExpression
-:
-	'new' primitiveType dimExprs dims?
-	| 'new' classOrInterfaceType dimExprs dims?
-	| 'new' primitiveType dims arrayInitializer
-	| 'new' classOrInterfaceType dims arrayInitializer
-;
-
-dimExprs
-:
-	dimExpr dimExpr*
-;
-
-dimExpr
-:
-	annotation* '[' expression ']'
-;
-
-constantExpression
-:
-	expression
-;
+grammar Expr;
 
 expression
 :
-	lambdaExpression
-	| assignmentExpression
+	primary
+	| ( '--' | '++' ) expression
+	| ( '-' | '+' ) expression
+	| expression ( '--' | '++' )
+	| ( '!' | '~' ) expression
+	//'(' primitiveType ')' expression //castExpression
+	| '(' referenceType ')' expression //castExpression
+    //| '(' referenceType ')' lambdaExpression //castExpression
+	| expression ( '%' | '/'| '*' ) expression //multiplicativeExpression
+	| expression ( '-' | '+' ) expression
+	| expression ( '>>>' | '>>' | '<<' ) expression
+	| expression ( '>=' | '<=' | '>' | '<' ) expression
+	| expression 'instanceof' referenceType
+	| expression ( '!=' | '==' ) expression
+	| expression '&' expression
+	| expression '^' expression
+	| expression '|' expression
+	| expression '&&' expression
+	| expression '||' expression
+	| expression '?' expression ':' expression
+	| <assoc=right> expression '=' expression
 ;
 
-lambdaExpression
+referenceType:Identifier;
+
+primary
 :
-	lambdaParameters '->' lambdaBody
+	'(' expression ')'
+	| 'this'
+	| 'super'
+	| literal
+	| Identifier
+	| 'void' '.' 'class'
 ;
 
-lambdaParameters
-:
-	Identifier
-	| '(' formalParameterList? ')'
-	| '(' inferredFormalParameterList ')'
-;
-
-inferredFormalParameterList
-:
-	Identifier
-	(
-		',' Identifier
-	)*
-;
-
-lambdaBody
-:
-	expression
-	| block
-;
-
-assignmentExpression
-:
-	conditionalExpression
-	| assignment
-;
-
-assignment
-:
-	leftHandSide AssignmentOperator expression
-;
-
-leftHandSide
-:
-	expressionName
-	| fieldAccess
-	| arrayAccess
-;
-
-AssignmentOperator
+assignmentOperator
 :
 	'='
 	| '*='
@@ -222,134 +51,6 @@ AssignmentOperator
 	| '&='
 	| '^='
 	| '|='
-;
-
-conditionalExpression
-:
-	conditionalOrExpression
-	| conditionalOrExpression '?' expression ':' conditionalExpression
-;
-
-conditionalOrExpression
-:
-	conditionalAndExpression
-	| conditionalOrExpression '||' conditionalAndExpression
-;
-
-conditionalAndExpression
-:
-	inclusiveOrExpression
-	| conditionalAndExpression '&&' inclusiveOrExpression
-;
-
-inclusiveOrExpression
-:
-	exclusiveOrExpression
-	| inclusiveOrExpression '|' exclusiveOrExpression
-;
-
-exclusiveOrExpression
-:
-	andExpression
-	| exclusiveOrExpression '^' andExpression
-;
-
-andExpression
-:
-	equalityExpression
-	| andExpression '&' equalityExpression
-;
-
-equalityExpression
-:
-	relationalExpression
-	| equalityExpression '==' relationalExpression
-	| equalityExpression '!=' relationalExpression
-;
-
-relationalExpression
-:
-	shiftExpression
-	| relationalExpression '<' shiftExpression
-	| relationalExpression '>' shiftExpression
-	| relationalExpression '<=' shiftExpression
-	| relationalExpression '>=' shiftExpression
-	| relationalExpression 'instanceof' referenceType
-;
-
-shiftExpression
-:
-	additiveExpression
-	| shiftExpression '<<' additiveExpression
-	| shiftExpression '>>' additiveExpression
-	| shiftExpression '>>>' additiveExpression
-;
-
-additiveExpression
-:
-	multiplicativeExpression
-	| additiveExpression '+' multiplicativeExpression
-	| additiveExpression '-' multiplicativeExpression
-;
-
-multiplicativeExpression
-:
-	unaryExpression
-	| multiplicativeExpression '*' unaryExpression
-	| multiplicativeExpression '/' unaryExpression
-	| multiplicativeExpression '%' unaryExpression
-;
-
-unaryExpression
-:
-	preIncrementExpression
-	| preDecrementExpression
-	| '+' unaryExpression
-	| '-' unaryExpression
-	| unaryExpressionNotPlusMinus
-;
-
-preIncrementExpression
-:
-	'++' unaryExpression
-;
-
-preDecrementExpression
-:
-	'--' unaryExpression
-;
-
-unaryExpressionNotPlusMinus
-:
-	postfixExpression
-	| '~' unaryExpression
-	| '!' unaryExpression
-	| castExpression
-;
-
-postfixExpression
-:
-	primary
-	| expressionName
-//	| postIncrementExpression
-//	| postDecrementExpression
-;
-
-postIncrementExpression
-:
-	postfixExpression '++'
-;
-
-postDecrementExpression
-:
-	postfixExpression '--'
-;
-
-castExpression
-:
-	'(' primitiveType ')' unaryExpression
-	| '(' referenceType additionalBound* ')' unaryExpressionNotPlusMinus
-	| '(' referenceType additionalBound* ')' lambdaExpression
 ;
 
 literal

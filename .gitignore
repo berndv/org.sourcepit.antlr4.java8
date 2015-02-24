@@ -1,2 +1,6 @@
 /bin/
 /src-gen/
+/target/
+/.project
+/.settings/
+/.classpath
