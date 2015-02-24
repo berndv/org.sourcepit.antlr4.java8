@@ -20,43 +20,43 @@ package org.sourcepit.antlr4.java8;
 }
 
 //http://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#jls-TypeName
-typeName:;
-expressionName:;
-methodName:;
+typeName:'typeName';
+expressionName:'expressionName';
+methodName:'methodName';
 
 //Productions from §4 (Types, Values, and Variables)
 //Deps:
 //- annotation
-typeArguments:;
-referenceType:;
-classType:;
-arrayType:;
-primitiveType:;
-dims:;
-additionalBound:;
+typeArguments:'typeArguments';
+referenceType:'referenceType';
+classType:'classType';
+arrayType:'arrayType';
+primitiveType:'primitiveType';
+dims:'dims';
+additionalBound:'additionalBound';
 
 //Productions from §9 (Interfaces)
 //Deps:
 //- conditionalExpression
 //- methodBody (classes)
-annotation:;
+annotation:'annotation';
 
 //Productions from §8 (Classes)
 //- annotation (interfaces)
 //- block
 //- argumentList (expressions)
-classBody:;
-classOrInterfaceType:;
-formalParameterList:;
+classBody:'classBody';
+classOrInterfaceType:'classOrInterfaceType';
+formalParameterList:'formalParameterList';
 
 //Productions from §10 (Arrays)
 //- variableInitializer (classes)
-arrayInitializer:;
+arrayInitializer:'arrayInitializer';
 
 //Productions from §14 (Blocks and Statements)
 //- classDeclaration,.. (classes)
 //- assignment,... (expressions)
-block:;
+block:'block';
 
 primary
 :
@@ -67,10 +67,7 @@ primary
 primaryNoNewArray
 :
 	literal
-	| typeName
-	(
-		'[' ']'
-	)? '.' 'class'
+	| typeName ('[' ']')? '.' 'class'
 	| 'void' '.' 'class'
 	| 'this'
 	| typeName '.' 'this'
@@ -84,12 +81,9 @@ primaryNoNewArray
 
 classInstanceCreationExpression
 :
-	'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '('
-	argumentList? ')' classBody?
-	| expressionName '.' 'new' typeArguments? annotation* Identifier
-	typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
-	| primary '.' 'new' typeArguments? annotation* Identifier
-	typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
+	'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '('	argumentList? ')' classBody?
+	| expressionName '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
+//	| primary '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
 ;
 
 typeArgumentsOrDiamond
@@ -100,15 +94,16 @@ typeArgumentsOrDiamond
 
 fieldAccess
 :
-	primary '.' Identifier
-	| 'super' '.' Identifier
+//	primary '.' Identifier
+//	|
+	 'super' '.' Identifier
 	| typeName '.' 'super' '.' Identifier
 ;
 
 arrayAccess
 :
 	expressionName '[' expression ']'
-	| primaryNoNewArray '[' expression ']'
+//	| primaryNoNewArray '[' expression ']'
 ;
 
 methodInvocation
@@ -116,7 +111,7 @@ methodInvocation
 	methodName '(' argumentList? ')'
 	| typeName '.' typeArguments? Identifier '(' argumentList? ')'
 	| expressionName '.' typeArguments? Identifier '(' argumentList? ')'
-	| primary '.' typeArguments? Identifier '(' argumentList? ')'
+//	| primary '.' typeArguments? Identifier '(' argumentList? ')'
 	| 'super' '.' typeArguments? Identifier '(' argumentList? ')'
 	| typeName '.' 'super' '.' typeArguments? Identifier '(' argumentList? ')'
 ;
@@ -133,7 +128,7 @@ methodReference
 :
 	expressionName '::' typeArguments? Identifier
 	| referenceType '::' typeArguments? Identifier
-	| primary '::' typeArguments? Identifier
+//	| primary '::' typeArguments? Identifier
 	| 'super' '::' typeArguments? Identifier
 	| typeName '.' 'super' '::' typeArguments? Identifier
 	| classType '::' typeArguments? 'new'
@@ -203,7 +198,7 @@ assignmentExpression
 
 assignment
 :
-	leftHandSide assignmentOperator expression
+	leftHandSide AssignmentOperator expression
 ;
 
 leftHandSide
@@ -213,7 +208,7 @@ leftHandSide
 	| arrayAccess
 ;
 
-assignmentOperator
+AssignmentOperator
 :
 	'='
 	| '*='
@@ -336,8 +331,8 @@ postfixExpression
 :
 	primary
 	| expressionName
-	| postIncrementExpression
-	| postDecrementExpression
+//	| postIncrementExpression
+//	| postDecrementExpression
 ;
 
 postIncrementExpression
