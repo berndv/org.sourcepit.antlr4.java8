@@ -1,97 +1,24 @@
-grammar Expr;
+grammar Primary;
 
-primary[int _p]
-:
-	'(' expression ')' //1
-	| 'this' //2
-	| 'super' //3
-	| literal//4
-	| Identifier//5
-	| 'void' '.' 'class'//6
-	| /*{6 >= $_p}?*/ fieldAccess//7
-//	| primary '.' Identifier
-//	| 'super' '.' Identifier
-//	| typeName '.' 'super' '.' Identifier
+primaries:
+	({primary(100);})+ EOF
 ;
 
-fieldAccess
-:
-	//primary '.' Identifier
-	| 'super' '.' Identifier
-	| typeName '.' 'super' '.' Identifier
+primary[int _p]:
+	'primary1'		// 1
+	| 'primary2'	// 2
+	| literal		// 3
+	| ({3>=$_p}? fieldAccess[4] {4>=$_p}? arrayAccess[5])
 ;
 
-expression:
-	lambdaExpression
-	| assignmentExpression
+fieldAccess[int _p]:
+	{primary(_p);}
+	| 'fieldAccess'
 ;
 
-assignmentExpression:
-	{primary(0);}
-	| <assoc=right> '++' assignmentExpression //preIncrementExpression
-	| <assoc=right> '--' assignmentExpression //preDecrementExpression
-	| <assoc=right> '+' assignmentExpression //unaryExpression
-	| <assoc=right> '-' assignmentExpression //unaryExpression
-	| <assoc=right> assignmentExpression '++' //postIncrementExpression
-	| <assoc=right> assignmentExpression '--' //postDecrementExpression
-	| <assoc=right> '~' assignmentExpression //unaryExpression
-	| <assoc=right> '!' assignmentExpression //unaryExpression
-	| <assoc=right> '(' primitiveType ')' assignmentExpression //castExpression
-	| <assoc=right> '(' referenceType ')' assignmentExpression //castExpression
-    | <assoc=right> '(' referenceType ')' lambdaExpression //castExpression
-	| assignmentExpression '*' assignmentExpression //multiplicativeExpression
-	| assignmentExpression '/' assignmentExpression //multiplicativeExpression
-	| assignmentExpression '%' assignmentExpression //multiplicativeExpression
-	| assignmentExpression '+' assignmentExpression //additiveExpression
-	| assignmentExpression '-' assignmentExpression //additiveExpression
-	| assignmentExpression '<<' assignmentExpression //shiftExpression
-	| assignmentExpression '>>' assignmentExpression //shiftExpression
-	| assignmentExpression '>>>' assignmentExpression //shiftExpression
-	| assignmentExpression '<' assignmentExpression //relationalExpression
-	| assignmentExpression '>' assignmentExpression //relationalExpression
-	| assignmentExpression '<=' assignmentExpression //relationalExpression
-	| assignmentExpression '>=' assignmentExpression //relationalExpression
-	| assignmentExpression 'instanceof' referenceType //relationalExpression
-	| assignmentExpression '==' assignmentExpression //equalityExpression
-	| assignmentExpression '!=' assignmentExpression //equalityExpression
-	| assignmentExpression '&' assignmentExpression //andExpression
-	| assignmentExpression '^' assignmentExpression //exclusiveOrExpression
-	| assignmentExpression '|' assignmentExpression //inclusiveOrExpression
-	| assignmentExpression '&&' assignmentExpression //conditionalAndExpression
-	| assignmentExpression '||' assignmentExpression //conditionalOrExpression
-	| <assoc=right> assignmentExpression '?' assignmentExpression ':' assignmentExpression //conditionalExpression
-	| <assoc=right> assignmentExpression assignmentOperator assignmentExpression //assignment
-;
-
-referenceType:
-	Identifier
-;
-primitiveType:
-	Identifier
-;
-
-typeName:
-	Identifier ('.' Identifier)*
-;
-
-lambdaExpression:
-	Identifier
-;
-
-assignmentOperator
-:
-	'='
-	| '*='
-	| '/='
-	| '%='
-	| '+='
-	| '-='
-	| '<<='
-	| '>>='
-	| '>>>='
-	| '&='
-	| '^='
-	| '|='
+arrayAccess[int _p]:
+	{primary(_p);}
+	| 'arrayAccess'
 ;
 
 literal
@@ -1187,4 +1114,3 @@ LINE_COMMENT
 :
 	'//' ~[\r\n]* -> skip
 ;
-
