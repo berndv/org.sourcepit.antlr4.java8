@@ -1,32 +1,5 @@
 grammar Expr;
 
-expression
-:
-	primary
-	| ( '--' | '++' ) expression
-	| ( '-' | '+' ) expression
-	| expression ( '--' | '++' )
-	| ( '!' | '~' ) expression
-	//'(' primitiveType ')' expression //castExpression
-	| '(' referenceType ')' expression //castExpression
-    //| '(' referenceType ')' lambdaExpression //castExpression
-	| expression ( '%' | '/'| '*' ) expression //multiplicativeExpression
-	| expression ( '-' | '+' ) expression
-	| expression ( '>>>' | '>>' | '<<' ) expression
-	| expression ( '>=' | '<=' | '>' | '<' ) expression
-	| expression 'instanceof' referenceType
-	| expression ( '!=' | '==' ) expression
-	| expression '&' expression
-	| expression '^' expression
-	| expression '|' expression
-	| expression '&&' expression
-	| expression '||' expression
-	| expression '?' expression ':' expression
-	| <assoc=right> expression '=' expression
-;
-
-referenceType:Identifier;
-
 primary
 :
 	'(' expression ')'
@@ -35,6 +8,58 @@ primary
 	| literal
 	| Identifier
 	| 'void' '.' 'class'
+;
+
+expression:
+	lambdaExpression
+	| assignmentExpression
+;
+
+assignmentExpression:
+	primary
+	| <assoc=right> '++' assignmentExpression //preIncrementExpression
+	| <assoc=right> '--' assignmentExpression //preDecrementExpression
+	| <assoc=right> '+' assignmentExpression //unaryExpression
+	| <assoc=right> '-' assignmentExpression //unaryExpression
+	| <assoc=right> assignmentExpression '++' //postIncrementExpression
+	| <assoc=right> assignmentExpression '--' //postDecrementExpression
+	| <assoc=right> '~' assignmentExpression //unaryExpression
+	| <assoc=right> '!' assignmentExpression //unaryExpression
+	| <assoc=right> '(' primitiveType ')' assignmentExpression //castExpression
+	| <assoc=right> '(' referenceType ')' assignmentExpression //castExpression
+    | <assoc=right> '(' referenceType ')' lambdaExpression //castExpression
+	| assignmentExpression '*' assignmentExpression //multiplicativeExpression
+	| assignmentExpression '/' assignmentExpression //multiplicativeExpression
+	| assignmentExpression '%' assignmentExpression //multiplicativeExpression
+	| assignmentExpression '+' assignmentExpression //additiveExpression
+	| assignmentExpression '-' assignmentExpression //additiveExpression
+	| assignmentExpression '<<' assignmentExpression //shiftExpression
+	| assignmentExpression '>>' assignmentExpression //shiftExpression
+	| assignmentExpression '>>>' assignmentExpression //shiftExpression
+	| assignmentExpression '<' assignmentExpression //relationalExpression
+	| assignmentExpression '>' assignmentExpression //relationalExpression
+	| assignmentExpression '<=' assignmentExpression //relationalExpression
+	| assignmentExpression '>=' assignmentExpression //relationalExpression
+	| assignmentExpression 'instanceof' referenceType //relationalExpression
+	| assignmentExpression '==' assignmentExpression //equalityExpression
+	| assignmentExpression '!=' assignmentExpression //equalityExpression
+	| assignmentExpression '&' assignmentExpression //andExpression
+	| assignmentExpression '^' assignmentExpression //exclusiveOrExpression
+	| assignmentExpression '|' assignmentExpression //inclusiveOrExpression
+	| assignmentExpression '&&' assignmentExpression //conditionalAndExpression
+	| assignmentExpression '||' assignmentExpression //conditionalOrExpression
+	| <assoc=right> assignmentExpression '?' assignmentExpression ':' assignmentExpression //conditionalExpression
+	| <assoc=right> assignmentExpression assignmentOperator assignmentExpression //assignment
+;
+
+referenceType:
+	Identifier
+;
+primitiveType:
+	Identifier
+;
+lambdaExpression:
+	Identifier
 ;
 
 assignmentOperator
