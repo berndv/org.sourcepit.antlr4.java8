@@ -64,69 +64,22 @@ primaryPrefixExpression:
 ;
 
 primaryPrefixExpressionNoNewArray:
-	literal
+	  literal
 	| typeName ('[' ']')? '.' 'class'
 	| 'void' '.' 'class'
 	| 'this'
 	| typeName '.' 'this'
 	| '(' expression ')'
 	| objectCreationExpression
-	| expressionName ('.' objectCreationExpression | '[' expression ']' | methodCallExpressionWithTypeArgs | methodReferenceExpression)
+	| expressionName ('.' objectCreationExpression | '[' expression ']' | methodCallExpressionWithTypeArgs | fieldAccessExpression | methodReferenceExpression)
 	| 'super' (fieldAccessExpression | methodCallExpressionWithTypeArgs | methodReferenceExpression)
-	| typeName methodCallExpressionWithTypeArgs
+	| typeName methodCallExpressionWithTypeArgs // TODO: hidden by expressionName ('.... ?
 	| typeName '.' 'super' (fieldAccessExpression | methodCallExpressionWithTypeArgs | methodReferenceExpression)
 	| methodCallExpression
 	| referenceType methodReferenceExpression
 	| classType constructorReferenceExpressionWithTypeArgs
 	| arrayType constructorReferenceExpressionNoTypeArgs
 ;
-
-
-/*
-primary:
-	primaryNoNewArray | arrayCreationExpression
-;
-
-primaryNoNewArray:
-	literal
-	| typeName ('[' ']')? '.' 'class'
-	| 'void' '.' 'class'
-	| 'this'
-	| typeName '.' 'this'
-	| '(' expression ')'
-	
-	//| classInstanceCreationExpression
-	| objectCreationExpression
-	| expressionName '.' objectCreationExpression
-	| primary '.' objectCreationExpression
-	
-	//| fieldAccess
-	| primary fieldAccessExpression
-	| 'super' fieldAccessExpression
-	| typeName '.' 'super' fieldAccessExpression
-	
-	//| arrayAccess
-	| expressionName '[' expression ']'
-	| primaryNoNewArray '[' expression ']'
-	
-	//| methodInvocation
-	| methodCallExpression
-	| typeName methodCallExpressionWithTypeArgs
-	| expressionName methodCallExpressionWithTypeArgs
-	| primary methodCallExpressionWithTypeArgs
-	| 'super' methodCallExpressionWithTypeArgs
-	| typeName '.' 'super' methodCallExpressionWithTypeArgs
-	
-	//| methodReference
-	| expressionName methodReferenceExpression
-	| referenceType methodReferenceExpression
-	| primary methodReferenceExpression
-	| 'super' methodReferenceExpression
-	| typeName '.' 'super' methodReferenceExpression
-	| classType constructorReferenceExpressionWithTypeArgs
-	| arrayType constructorReferenceExpressionNoTypeArgs
-;
-*/
 
 objectCreationExpression:
 	'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
@@ -156,50 +109,12 @@ constructorReferenceExpressionNoTypeArgs:
 	'::' 'new'
 ;
 
-
-
-classInstanceCreationExpression:
-	'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '('	argumentList? ')' classBody?
-	| expressionName '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
-	| primary '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
-;
-
 typeArgumentsOrDiamond:
 	typeArguments | '<' '>'
 ;
 
-fieldAccess:
-	primary '.' Identifier
-	| 'super' '.' Identifier
-	| typeName '.' 'super' '.' Identifier
-;
-
-arrayAccess:
-	expressionName '[' expression ']'
-	| primaryNoNewArray '[' expression ']'
-;
-
-methodInvocation:
-	methodName '(' argumentList? ')'
-	| typeName '.' typeArguments? Identifier '(' argumentList? ')'
-	| expressionName '.' typeArguments? Identifier '(' argumentList? ')'
-//	| primary '.' typeArguments? Identifier '(' argumentList? ')'
-	| 'super' '.' typeArguments? Identifier '(' argumentList? ')'
-	| typeName '.' 'super' '.' typeArguments? Identifier '(' argumentList? ')'
-;
-
 argumentList:
 	expression (',' expression)*
-;
-
-methodReference:
-	expressionName '::' typeArguments? Identifier
-	| referenceType '::' typeArguments? Identifier
-//	| primary '::' typeArguments? Identifier
-	| 'super' '::' typeArguments? Identifier
-	| typeName '.' 'super' '::' typeArguments? Identifier
-	| classType '::' typeArguments? 'new'
-	| arrayType '::' 'new'
 ;
 
 arrayCreationExpression:
