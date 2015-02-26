@@ -41,6 +41,48 @@ arrayInitializer:'arrayInitializer';
 //- assignment,... (expressions)
 block:'block';
 
+
+
+primary:
+	primaryPrefixExpression primarySuffixExpression*
+;
+
+primaryNoNewArray:
+	primaryPrefixExpressionNoNewArray primarySuffixExpressionNoNewArray*
+;
+
+primarySuffixExpression:
+	'.' objectCreationExpression | methodCallExpressionWithTypeArgs | fieldAccessExpression | methodReferenceExpression
+;
+
+primarySuffixExpressionNoNewArray:
+	primarySuffixExpression | '[' expression ']'
+;
+
+primaryPrefixExpression:
+	primaryPrefixExpressionNoNewArray | arrayCreationExpression?
+;
+
+primaryPrefixExpressionNoNewArray:
+	literal
+	| typeName ('[' ']')? '.' 'class'
+	| 'void' '.' 'class'
+	| 'this'
+	| typeName '.' 'this'
+	| '(' expression ')'
+	| objectCreationExpression
+	| expressionName ('.' objectCreationExpression | '[' expression ']' | methodCallExpressionWithTypeArgs | methodReferenceExpression)
+	| 'super' (fieldAccessExpression | methodCallExpressionWithTypeArgs | methodReferenceExpression)
+	| typeName methodCallExpressionWithTypeArgs
+	| typeName '.' 'super' (fieldAccessExpression | methodCallExpressionWithTypeArgs | methodReferenceExpression)
+	| methodCallExpression
+	| referenceType methodReferenceExpression
+	| classType constructorReferenceExpressionWithTypeArgs
+	| arrayType constructorReferenceExpressionNoTypeArgs
+;
+
+
+/*
 primary:
 	primaryNoNewArray | arrayCreationExpression
 ;
@@ -52,33 +94,69 @@ primaryNoNewArray:
 	| 'this'
 	| typeName '.' 'this'
 	| '(' expression ')'
+	
 	//| classInstanceCreationExpression
-	|'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '('	argumentList? ')' classBody?
-	| expressionName '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
-	| primary '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
+	| objectCreationExpression
+	| expressionName '.' objectCreationExpression
+	| primary '.' objectCreationExpression
+	
 	//| fieldAccess
-	| primary '.' Identifier
-	| 'super' '.' Identifier
-	| typeName '.' 'super' '.' Identifier
+	| primary fieldAccessExpression
+	| 'super' fieldAccessExpression
+	| typeName '.' 'super' fieldAccessExpression
+	
 	//| arrayAccess
 	| expressionName '[' expression ']'
 	| primaryNoNewArray '[' expression ']'
+	
 	//| methodInvocation
-	| methodName '(' argumentList? ')'
-	| typeName '.' typeArguments? Identifier '(' argumentList? ')'
-	| expressionName '.' typeArguments? Identifier '(' argumentList? ')'
-	| primary '.' typeArguments? Identifier '(' argumentList? ')'
-	| 'super' '.' typeArguments? Identifier '(' argumentList? ')'
-	| typeName '.' 'super' '.' typeArguments? Identifier '(' argumentList? ')'
+	| methodCallExpression
+	| typeName methodCallExpressionWithTypeArgs
+	| expressionName methodCallExpressionWithTypeArgs
+	| primary methodCallExpressionWithTypeArgs
+	| 'super' methodCallExpressionWithTypeArgs
+	| typeName '.' 'super' methodCallExpressionWithTypeArgs
+	
 	//| methodReference
-	| expressionName '::' typeArguments? Identifier
-	| referenceType '::' typeArguments? Identifier
-	| primary '::' typeArguments? Identifier
-	| 'super' '::' typeArguments? Identifier
-	| typeName '.' 'super' '::' typeArguments? Identifier
-	| classType '::' typeArguments? 'new'
-	| arrayType '::' 'new'
+	| expressionName methodReferenceExpression
+	| referenceType methodReferenceExpression
+	| primary methodReferenceExpression
+	| 'super' methodReferenceExpression
+	| typeName '.' 'super' methodReferenceExpression
+	| classType constructorReferenceExpressionWithTypeArgs
+	| arrayType constructorReferenceExpressionNoTypeArgs
 ;
+*/
+
+objectCreationExpression:
+	'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
+;
+
+fieldAccessExpression:
+	'.' Identifier
+;
+
+methodCallExpressionWithTypeArgs:
+	'.' typeArguments? methodCallExpression
+;
+
+methodCallExpression:
+	methodName '(' argumentList? ')'
+;
+
+methodReferenceExpression:
+	'::' typeArguments? Identifier
+;
+
+constructorReferenceExpressionWithTypeArgs:
+	'::' typeArguments? 'new'
+;
+
+constructorReferenceExpressionNoTypeArgs:
+	'::' 'new'
+;
+
+
 
 classInstanceCreationExpression:
 	'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '('	argumentList? ')' classBody?
