@@ -4,3 +4,5 @@
 /.project
 /.settings/
 /.classpath
+/.idea/
+/org.sourcepit.antlr4.java8.iml
