@@ -63,7 +63,7 @@ primaryPrefixExpression:
 	primaryPrefixExpressionNoNewArray | arrayCreationExpression?
 ;
 
-primaryPrefixExpressionNoNewArray:
+primaryPrefixExpressionNoNewArray:  
 	  literal
 	| typeName ('[' ']')? '.' 'class'
 	| 'void' '.' 'class'
@@ -71,10 +71,12 @@ primaryPrefixExpressionNoNewArray:
 	| typeName '.' 'this'
 	| '(' expression ')'
 	| objectCreationExpression
-	| expressionName ('.' objectCreationExpression | '[' expression ']' | methodCallExpressionWithTypeArgs | fieldAccessExpression | methodReferenceExpression)
+	| typeName methodCallExpressionWithTypeArgs
 	| 'super' (fieldAccessExpression | methodCallExpressionWithTypeArgs | methodReferenceExpression)
-	| typeName methodCallExpressionWithTypeArgs // TODO: hidden by expressionName ('.... ?
 	| typeName '.' 'super' (fieldAccessExpression | methodCallExpressionWithTypeArgs | methodReferenceExpression)
+	// TODO: Test if type name is used before expressionName, when (fieldAccessExpression | methodCallExpressionWithTypeArgs | methodReferenceExpression) will match
+	// maybe we can remove fieldAccessExpression | methodCallExpressionWithTypeArgs | methodReferenceExpression from case below
+	| expressionName ('.' objectCreationExpression | '[' expression ']' | methodCallExpressionWithTypeArgs | fieldAccessExpression | methodReferenceExpression)
 	| methodCallExpression
 	| referenceType methodReferenceExpression
 	| classType constructorReferenceExpressionWithTypeArgs
