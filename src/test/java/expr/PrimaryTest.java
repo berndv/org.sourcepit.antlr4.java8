@@ -31,11 +31,11 @@ public class PrimaryTest {
    @Test
    public void test() throws ParseException {
       // new [TypeArguments] {Annotation} Identifier [TypeArgumentsOrDiamond] ( [ArgumentList] ) [ClassBody]
-      Expression expr = JavaParser.parseExpression("void.class.new<T> @Foo Hans<> ()");
+      Expression expr = JavaParser.parseExpression("expressionName.foo");
       System.out.println(expr);
 
       ExprParser exprParser = new ExprParser(new CommonTokenStream(new ExprLexer(new ANTLRInputStream(
-         "void.class.methodName()"))));
+         "expressionName.foo"))));
       exprParser.setTrace(true);
       
       PrimaryContext primary = exprParser.primary();
