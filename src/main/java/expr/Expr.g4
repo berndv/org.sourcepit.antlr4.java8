@@ -1,29 +1,169 @@
 grammar Expr;
 
-primary
-:
-	'(' expression ')' //1
-	| 'this' //2
-	| 'super' //3
-	| literal//4
-	| Identifier//5
-	| 'void' '.' 'class'//6
-	|  fieldAccess //7
-//	| primary '.' Identifier
-//	| 'super' '.' Identifier
-//	| typeName '.' 'super' '.' Identifier
+
+
+//http://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#jls-TypeName
+typeName:'typeName';
+expressionName:'expressionName';
+methodName:'methodName';
+
+//Productions from §4 (Types, Values, and Variables)
+//Deps:
+//- annotation
+typeArguments:'typeArguments';
+referenceType:'referenceType';
+classType:'classType';
+arrayType:'arrayType';
+primitiveType:'primitiveType';
+dims:'dims';
+additionalBound:'additionalBound';
+
+//Productions from §9 (Interfaces)
+//Deps:
+//- conditionalExpression
+//- methodBody (classes)
+annotation:'annotation';
+
+//Productions from §8 (Classes)
+//- annotation (interfaces)
+//- block
+//- argumentList (expressions)
+classBody:'classBody';
+classOrInterfaceType:'classOrInterfaceType';
+formalParameterList:'formalParameterList';
+
+//Productions from §10 (Arrays)
+//- variableInitializer (classes)
+arrayInitializer:'arrayInitializer';
+
+//Productions from §14 (Blocks and Statements)
+//- classDeclaration,.. (classes)
+//- assignment,... (expressions)
+block:'block';
+
+primary:
+	primaryNoNewArray | arrayCreationExpression
 ;
 
-fieldAccess
-:
-	//primary '.' Identifier
+primaryNoNewArray:
+	literal
+	| typeName ('[' ']')? '.' 'class'
+	| 'void' '.' 'class'
+	| 'this'
+	| typeName '.' 'this'
+	| '(' expression ')'
+	//| classInstanceCreationExpression
+	|'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '('	argumentList? ')' classBody?
+	| expressionName '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
+	| primary '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
+	//| fieldAccess
+	| primary '.' Identifier
+	| 'super' '.' Identifier
+	| typeName '.' 'super' '.' Identifier
+	//| arrayAccess
+	| expressionName '[' expression ']'
+	| primaryNoNewArray '[' expression ']'
+	//| methodInvocation
+	| methodName '(' argumentList? ')'
+	| typeName '.' typeArguments? Identifier '(' argumentList? ')'
+	| expressionName '.' typeArguments? Identifier '(' argumentList? ')'
+	| primary '.' typeArguments? Identifier '(' argumentList? ')'
+	| 'super' '.' typeArguments? Identifier '(' argumentList? ')'
+	| typeName '.' 'super' '.' typeArguments? Identifier '(' argumentList? ')'
+	//| methodReference
+	| expressionName '::' typeArguments? Identifier
+	| referenceType '::' typeArguments? Identifier
+	| primary '::' typeArguments? Identifier
+	| 'super' '::' typeArguments? Identifier
+	| typeName '.' 'super' '::' typeArguments? Identifier
+	| classType '::' typeArguments? 'new'
+	| arrayType '::' 'new'
+;
+
+classInstanceCreationExpression:
+	'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '('	argumentList? ')' classBody?
+	| expressionName '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
+	| primary '.' 'new' typeArguments? annotation* Identifier typeArgumentsOrDiamond? '(' argumentList? ')' classBody?
+;
+
+typeArgumentsOrDiamond:
+	typeArguments | '<' '>'
+;
+
+fieldAccess:
+	primary '.' Identifier
 	| 'super' '.' Identifier
 	| typeName '.' 'super' '.' Identifier
 ;
 
+arrayAccess:
+	expressionName '[' expression ']'
+	| primaryNoNewArray '[' expression ']'
+;
+
+methodInvocation:
+	methodName '(' argumentList? ')'
+	| typeName '.' typeArguments? Identifier '(' argumentList? ')'
+	| expressionName '.' typeArguments? Identifier '(' argumentList? ')'
+//	| primary '.' typeArguments? Identifier '(' argumentList? ')'
+	| 'super' '.' typeArguments? Identifier '(' argumentList? ')'
+	| typeName '.' 'super' '.' typeArguments? Identifier '(' argumentList? ')'
+;
+
+argumentList:
+	expression (',' expression)*
+;
+
+methodReference:
+	expressionName '::' typeArguments? Identifier
+	| referenceType '::' typeArguments? Identifier
+//	| primary '::' typeArguments? Identifier
+	| 'super' '::' typeArguments? Identifier
+	| typeName '.' 'super' '::' typeArguments? Identifier
+	| classType '::' typeArguments? 'new'
+	| arrayType '::' 'new'
+;
+
+arrayCreationExpression:
+	'new' primitiveType dimExprs dims?
+	| 'new' classOrInterfaceType dimExprs dims?
+	| 'new' primitiveType dims arrayInitializer
+	| 'new' classOrInterfaceType dims arrayInitializer
+;
+
+dimExprs:
+	dimExpr dimExpr*
+;
+
+dimExpr:
+	annotation* '[' expression ']'
+;
+
+constantExpression:
+	expression
+;
+
+lambdaExpression:
+	lambdaParameters '->' lambdaBody
+;
+
+lambdaParameters:
+	Identifier
+	| '(' formalParameterList? ')'
+	| '(' inferredFormalParameterList ')'
+;
+
+inferredFormalParameterList
+:
+	Identifier (',' Identifier)*
+;
+
+lambdaBody:
+	expression | block
+;
+
 expression:
-	lambdaExpression
-	| assignmentExpression
+	lambdaExpression | assignmentExpression
 ;
 
 assignmentExpression:
@@ -63,23 +203,7 @@ assignmentExpression:
 	| <assoc=right> assignmentExpression assignmentOperator assignmentExpression //assignment
 ;
 
-referenceType:
-	Identifier
-;
-primitiveType:
-	Identifier
-;
-
-typeName:
-	Identifier ('.' Identifier)*
-;
-
-lambdaExpression:
-	Identifier
-;
-
-assignmentOperator
-:
+assignmentOperator:
 	'='
 	| '*='
 	| '/='
@@ -94,8 +218,7 @@ assignmentOperator
 	| '|='
 ;
 
-literal
-:
+literal:
 	IntegerLiteral
 	| FloatingPointLiteral
 	| BooleanLiteral
@@ -104,153 +227,98 @@ literal
 	| NullLiteral
 ;
 
-IntegerLiteral
-:
+IntegerLiteral:
 	DecimalIntegerLiteral
 	| HexIntegerLiteral
 	| OctalIntegerLiteral
 	| BinaryIntegerLiteral
 ;
 
-fragment
-DecimalIntegerLiteral
-:
+fragment DecimalIntegerLiteral:
 	DecimalNumeral IntegerTypeSuffix?
 ;
 
-fragment
-HexIntegerLiteral
-:
+fragment HexIntegerLiteral:
 	HexNumeral IntegerTypeSuffix?
 ;
 
-fragment
-OctalIntegerLiteral
-:
+fragment OctalIntegerLiteral:
 	OctalNumeral IntegerTypeSuffix?
 ;
 
-fragment
-BinaryIntegerLiteral
-:
+fragment BinaryIntegerLiteral:
 	BinaryNumeral IntegerTypeSuffix?
 ;
 
-fragment
-IntegerTypeSuffix
-:
-	'l'
-	| 'L'
+fragment IntegerTypeSuffix:
+	'l'	| 'L'
 ;
 
-fragment
-DecimalNumeral
-:
+fragment DecimalNumeral:
 	'0'
 	| NonZeroDigit Digits?
 	| NonZeroDigit Underscores Digits
 ;
 
-fragment
-NonZeroDigit
-:
+fragment NonZeroDigit:
 	'1' .. '9'
 ;
 
-fragment
-Digits
-:
-	Digit
-	| Digit DigitsAndUnderscores? Digit
+fragment Digits:
+	Digit | Digit DigitsAndUnderscores? Digit
 ;
 
-fragment
-Digit
-:
-	'0'
-	| NonZeroDigit
+fragment Digit:
+	'0'	| NonZeroDigit
 ;
 
-fragment
-DigitsAndUnderscores
-:
+fragment DigitsAndUnderscores:
 	DigitOrUnderscore DigitOrUnderscore*
 ;
 
-fragment
-DigitOrUnderscore
-:
-	Digit
-	| '_'
+fragment DigitOrUnderscore:
+	Digit | '_'
 ;
 
-fragment
-Underscores
-:
+fragment Underscores:
 	'_'+
 ;
 
-fragment
-HexNumeral
-:
-	'0'
-	(
-		'x'
-		| 'X'
-	) HexDigits
+fragment HexNumeral:
+	'0' ('x' | 'X') HexDigits
 ;
 
-fragment
-HexDigits
-:
-	HexDigit
-	| HexDigit HexDigitsAndUnderscores? HexDigit
+fragment HexDigits:
+	HexDigit | HexDigit HexDigitsAndUnderscores? HexDigit
 ;
 
-fragment
-HexDigit
-:
+fragment HexDigit:
 	'0' .. '9'
 	| 'a' .. 'f'
 	| 'A' .. 'F'
 ;
 
-fragment
-HexDigitsAndUnderscores
-:
+fragment HexDigitsAndUnderscores:
 	HexDigitOrUnderscore HexDigitOrUnderscore*
 ;
 
-fragment
-HexDigitOrUnderscore
-:
-	HexDigit
-	| '_'
+fragment HexDigitOrUnderscore:
+	HexDigit | '_'
 ;
 
-fragment
-OctalNumeral
-:
-	'0' OctalDigits
-	| '0' Underscores OctalDigits
+fragment OctalNumeral:
+	'0' OctalDigits | '0' Underscores OctalDigits
 ;
 
-fragment
-OctalDigits
-:
-	OctalDigit
-	| OctalDigit OctalDigitsAndUnderscores? OctalDigit
+fragment OctalDigits:
+	OctalDigit | OctalDigit OctalDigitsAndUnderscores? OctalDigit
 ;
 
-fragment
-OctalDigit
-:
+fragment OctalDigit:
 	'0' .. '7'
 ;
 
-fragment
-OctalDigitsAndUnderscores
-:
+fragment OctalDigitsAndUnderscores:
 	OctalDigitOrUnderscore OctalDigitOrUnderscore*
 ;
 
