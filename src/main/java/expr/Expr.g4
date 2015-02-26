@@ -1,6 +1,6 @@
 grammar Expr;
 
-primary[int _p]
+primary
 :
 	'(' expression ')' //1
 	| 'this' //2
@@ -8,7 +8,7 @@ primary[int _p]
 	| literal//4
 	| Identifier//5
 	| 'void' '.' 'class'//6
-	| /*{6 >= $_p}?*/ fieldAccess//7
+	|  fieldAccess //7
 //	| primary '.' Identifier
 //	| 'super' '.' Identifier
 //	| typeName '.' 'super' '.' Identifier
@@ -27,7 +27,7 @@ expression:
 ;
 
 assignmentExpression:
-	{primary(0);}
+	primary
 	| <assoc=right> '++' assignmentExpression //preIncrementExpression
 	| <assoc=right> '--' assignmentExpression //preDecrementExpression
 	| <assoc=right> '+' assignmentExpression //unaryExpression
