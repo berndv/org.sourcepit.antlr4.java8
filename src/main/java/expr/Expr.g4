@@ -68,8 +68,7 @@ classOrInterfaceType:
 ;
 
 classType:
-      annotation* Identifier typeArguments? 
-    | classOrInterfaceType '.' annotation* Identifier typeArguments?
+      annotation* Identifier typeArguments? ('.' annotation* Identifier typeArguments?)*
 ;
 
 interfaceType:
@@ -271,8 +270,7 @@ unannClassOrInterfaceType:
 ;
 
 unannClassType:
-      Identifier typeArguments? 
-    | unannClassOrInterfaceType '.' annotation* Identifier typeArguments?
+      Identifier typeArguments? ('.' annotation* Identifier typeArguments?)*
 ;
 
 unannInterfaceType:
