@@ -21,17 +21,102 @@ typeName:'typeName';
 expressionName:'expressionName';
 methodName:'methodName';
 
-//Productions from §4 (Types, Values, and Variables)
-//Deps:
-//- annotation
-typeArguments:'typeArguments';
-referenceType:'referenceType';
-classType:'classType';
-arrayType:'arrayType';
-primitiveType:'primitiveType';
-dims:'dims';
-additionalBound:'additionalBound';
+type:
+      primitiveType 
+    | referenceType
+;
 
+primitiveType:
+      annotation* numericType 
+    | annotation* 'boolean'
+;
+
+numericType:
+      integralType 
+    | floatingPointType
+;
+
+integralType:
+      'byte'
+    | 'short'
+    | 'int'
+    | 'long'
+    | 'char'
+;
+
+floatingPointType:
+      'float'
+    | 'double'
+;
+
+referenceType:
+      classOrInterfaceType 
+    | typeVariable 
+    | arrayType
+;
+
+classOrInterfaceType:
+      classType 
+    | interfaceType
+;
+
+classType:
+      annotation* Identifier typeArguments? 
+    | classOrInterfaceType '.' annotation* Identifier typeArguments?
+;
+
+interfaceType:
+    classType
+;
+
+typeVariable:
+    annotation* Identifier
+;
+
+arrayType:
+      primitiveType dims 
+    | classOrInterfaceType dims 
+    | typeVariable dims
+;
+
+dims:
+    annotation* '[' ']' (annotation* '[' ']')*
+;
+
+typeParameter:
+    typeParameterModifier* Identifier typeBound?
+;
+
+typeBound:
+      'extends' typeVariable 
+    | 'extends' classOrInterfaceType additionalBound*
+;
+
+additionalBound:
+    '&' interfaceType
+;
+
+typeArguments:
+    '<' typeArgumentList '>'
+;
+
+typeArgumentList:
+    typeArgument (',' typeArgument)*
+;
+
+typeArgument:
+      referenceType 
+    | wildcard
+;
+
+wildcard:
+    annotation* '?' wildcardBounds?
+;
+
+wildcardBounds:
+      'extends' referenceType 
+    | 'super' referenceType
+;
 
 compilationUnit:
     packageDeclaration? importDeclaration* typeDeclaration*
