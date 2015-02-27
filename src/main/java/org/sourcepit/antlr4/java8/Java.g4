@@ -16,10 +16,33 @@
 grammar Java;
 
 
-//http://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#jls-TypeName
-typeName:'typeName';
-expressionName:'expressionName';
-methodName:'methodName';
+packageName:
+      Identifier 
+    | packageName '.' Identifier
+;
+
+typeName:
+      Identifier 
+    | packageOrTypeName '.' Identifier
+;
+
+packageOrTypeName:
+      Identifier ('.' Identifier)*
+;
+
+expressionName:
+      Identifier 
+    | ambiguousName '.' Identifier
+;
+
+methodName:
+    Identifier 
+;
+
+ambiguousName:
+      Identifier ('.' Identifier)*
+;
+
 
 type:
       primitiveType 
