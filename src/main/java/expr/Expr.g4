@@ -619,6 +619,26 @@ statementExpression:
 	| classInstanceCreationExpression
 ;
 
+preIncrementExpression
+:
+	'++' unaryExpression
+;
+
+preDecrementExpression
+:
+	'--' unaryExpression
+;
+
+postIncrementExpression
+:
+	postfixExpression '++'
+;
+
+postDecrementExpression
+:
+	postfixExpression '--'
+;
+
 ifThenStatement:
 	'if' '(' expression ')' statement
 ;
@@ -1013,21 +1033,11 @@ multiplicativeExpression
 
 unaryExpression
 :
-	preIncrementExpression
-	| preDecrementExpression
+	'++' unaryExpression
+	| '--' unaryExpression
 	| '+' unaryExpression
 	| '-' unaryExpression
 	| unaryExpressionNotPlusMinus
-;
-
-preIncrementExpression
-:
-	'++' unaryExpression
-;
-
-preDecrementExpression
-:
-	'--' unaryExpression
 ;
 
 unaryExpressionNotPlusMinus
@@ -1042,18 +1052,8 @@ postfixExpression
 :
 	primary
 	| expressionName
-//	| postIncrementExpression
-//	| postDecrementExpression
-;
-
-postIncrementExpression
-:
-	postfixExpression '++'
-;
-
-postDecrementExpression
-:
-	postfixExpression '--'
+	| postfixExpression '++'
+	| postfixExpression '--'
 ;
 
 castExpression
@@ -1064,7 +1064,7 @@ castExpression
 ;
 
 fieldAccess:
-      Primary . Identifier 
+      primary . Identifier 
     | 'super' . Identifier 
     | 'TypeName' '.' 'super' '.' Identifier
 ;
