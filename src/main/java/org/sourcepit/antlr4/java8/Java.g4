@@ -110,6 +110,10 @@ typeParameter:
     typeParameterModifier* Identifier typeBound?
 ;
 
+typeParameterModifier:
+    annotation
+;
+
 typeBound:
       'extends' typeVariable 
     | 'extends' classOrInterfaceType additionalBound*
@@ -389,6 +393,10 @@ constructorDeclarator:
     typeParameters? simpleTypeName '(' formalParameterList? ')'
 ;
 
+simpleTypeName:
+    Identifier
+;
+
 constructorBody:
     '{' explicitConstructorInvocation? blockStatements? '}'
 ;
@@ -498,7 +506,7 @@ annotationTypeElementModifier:
 ;
 
 defaultValue:
-    'default' ElementValue
+    'default' elementValue
 ;
 
 annotation:
@@ -508,7 +516,7 @@ annotation:
 ;
 
 normalAnnotation:
-    '@' TypeName '(' ElementValuePairList? ')'
+    '@' TypeName '(' elementValuePairList? ')'
 ;
 
 elementValuePairList:
@@ -529,8 +537,8 @@ elementValueArrayInitializer:
     '{' elementValueList? ','? '}'
 ;
 
-ElementValueList:
-    ElementValue {, ElementValue}
+elementValueList:
+    elementValue (',' elementValue)*
 ;
 
 markerAnnotation:
