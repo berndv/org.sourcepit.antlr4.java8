@@ -498,7 +498,7 @@ annotation:
 ;
 
 normalAnnotation:
-    '@' TypeName '(' elementValuePairList? ')'
+    '@' typeName '(' elementValuePairList? ')'
 ;
 
 elementValuePairList:
