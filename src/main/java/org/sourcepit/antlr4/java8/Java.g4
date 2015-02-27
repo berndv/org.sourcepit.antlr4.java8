@@ -32,6 +32,48 @@ primitiveType:'primitiveType';
 dims:'dims';
 additionalBound:'additionalBound';
 
+
+compilationUnit:
+    packageDeclaration? importDeclaration* typeDeclaration*
+;
+
+packageDeclaration:
+    packageModifier* 'package' Identifier ('.' Identifier)* ';'
+;
+
+packageModifier:
+    annotation
+;
+
+importDeclaration:
+      singleTypeImportDeclaration 
+    | typeImportOnDemandDeclaration 
+    | singleStaticImportDeclaration 
+    | staticImportOnDemandDeclaration
+;
+
+singleTypeImportDeclaration:
+    'import' typeName ';'
+;
+
+typeImportOnDemandDeclaration:
+    'import' packageOrTypeName '.' '*' ';'
+;
+
+singleStaticImportDeclaration:
+    'import' 'static' typeName '.' Identifier ';'
+;
+
+staticImportOnDemandDeclaration:
+    'import' 'static' typeName '.' '*' ';'
+;
+
+typeDeclaration:
+      classDeclaration 
+    | interfaceDeclaration 
+    | ';'
+;
+
 classDeclaration:
       normalClassDeclaration
     | enumDeclaration
