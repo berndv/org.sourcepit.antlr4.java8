@@ -32,13 +32,247 @@ primitiveType:'primitiveType';
 dims:'dims';
 additionalBound:'additionalBound';
 
-//Productions from §8 (Classes)
-//- annotation (interfaces)
-//- block
-//- argumentList (expressions)
-classBody:'classBody';
-classOrInterfaceType:'classOrInterfaceType';
-formalParameterList:'formalParameterList';
+classDeclaration:
+      normalClassDeclaration
+    | enumDeclaration
+;
+
+normalClassDeclaration:
+    classModifier* 'class' Identifier typeParameters? superclass? superinterfaces? classBody
+;
+
+classModifier:
+      (annotation | 'public' | 'protected' | 'private') 
+    | ('abstract' | 'static' | 'final' | 'strictfp')
+;
+
+typeParameters:
+    '<' typeParameterList '>'
+;
+
+typeParameterList:
+    typeParameter (',' typeParameter)*
+;
+
+superclass:
+    'extends' classType
+;
+
+superinterfaces:
+    'implements' interfaceTypeList
+;
+
+interfaceTypeList:
+    interfaceType (',' interfaceType)*
+;
+
+classBody:
+    '{' classBodyDeclaration* '}'
+;
+
+classBodyDeclaration:
+      classMemberDeclaration 
+    | instanceInitializer 
+    | staticInitializer 
+    | constructorDeclaration
+;
+
+classMemberDeclaration:
+      fieldDeclaration 
+    | methodDeclaration 
+    | classDeclaration 
+    | interfaceDeclaration 
+    | ';'
+;
+
+fieldDeclaration:
+    fieldModifier* unannType variableDeclaratorList ';'
+;
+
+fieldModifier:
+      (annotation | 'public' | 'protected' | 'private') 
+    | ('static' | 'final' | 'transient' | 'volatile')
+;
+
+variableDeclaratorList:
+    variableDeclarator (',' variableDeclarator)*
+;
+
+variableDeclarator:
+    variableDeclaratorId ('=' variableInitializer)?
+;
+
+variableDeclaratorId:
+    Identifier dims?
+;
+
+variableInitializer:
+      expression 
+    | arrayInitializer
+;
+
+unannType:
+      unannPrimitiveType 
+    | unannReferenceType
+;
+
+unannPrimitiveType:
+      numericType 
+    | 'boolean'
+;
+
+unannReferenceType:
+      unannClassOrInterfaceType 
+    | unannTypeVariable 
+    | unannArrayType
+;
+
+unannClassOrInterfaceType:
+      unannClassType 
+    | unannInterfaceType
+;
+
+unannClassType:
+      Identifier typeArguments? 
+    | unannClassOrInterfaceType '.' annotation* Identifier typeArguments?
+;
+
+unannInterfaceType:
+    unannClassType
+;
+
+unannTypeVariable:
+    Identifier
+;
+
+unannArrayType:
+      unannPrimitiveType dims 
+    | unannClassOrInterfaceType dims 
+    | unannTypeVariable dims
+;
+
+methodDeclaration:
+    methodModifier* methodHeader methodBody
+;
+
+methodModifier:
+      (annotation | 'public' | 'protected' | 'private') 
+    | ('abstract' | 'static' | 'final' | 'synchronized' | 'native' | 'strictfp')
+;
+
+methodHeader:
+      result methodDeclarator throws_? 
+    | typeParameters annotation* result methodDeclarator throws_?
+;
+
+result:
+      unannType 
+    | 'void'
+;
+
+methodDeclarator:
+    Identifier '(' formalParameterList? ')' dims?
+;
+
+formalParameterList:
+      formalParameters ',' lastFormalParameter 
+    | lastFormalParameter
+;
+
+formalParameters:
+      formalParameter (',' formalParameter)* 
+    | receiverParameter (',' formalParameter)*
+;
+
+formalParameter:
+    variableModifier* unannType variableDeclaratorId
+;
+
+variableModifier:
+    annotation | 'final'
+;
+
+lastFormalParameter:
+      variableModifier* unannType annotation* '...' variableDeclaratorId 
+    | formalParameter
+;
+
+receiverParameter:
+    annotation* unannType (Identifier '.')? 'this'
+;
+
+throws_:
+    'throws' exceptionTypeList
+;
+
+exceptionTypeList:
+    exceptionType (',' exceptionType)*
+;
+
+exceptionType:
+      classType 
+    | typeVariable
+;
+
+methodBody:
+      block 
+    | ';'
+;
+
+instanceInitializer:
+    block
+;
+
+staticInitializer:
+    'static' block
+;
+
+constructorDeclaration:
+    constructorModifier* constructorDeclarator throws_? constructorBody
+;
+
+constructorModifier:
+    annotation | 'public' | 'protected' | 'private'
+;
+
+constructorDeclarator:
+    typeParameters? simpleTypeName '(' formalParameterList? ')'
+;
+
+constructorBody:
+    '{' explicitConstructorInvocation? blockStatements? '}'
+;
+
+explicitConstructorInvocation:
+      typeArguments? 'this' '(' argumentList? ')' ';' 
+    | typeArguments? 'super' '(' argumentList? ')' ';' 
+    | expressionName '.' typeArguments? 'super' '(' argumentList? ')' ';' 
+    | primary '.' typeArguments? 'super' '(' argumentList? ')' ';'
+;
+
+enumDeclaration:
+    classModifier* 'enum' Identifier superinterfaces? enumBody
+;
+
+enumBody:
+    '{' enumConstantList? ','? enumBodyDeclarations? '}'
+;
+
+enumConstantList:
+    enumConstant (',' enumConstant)?
+;
+
+enumConstant:
+    enumConstantModifier* Identifier ('(' argumentList? ')')? classBody?
+;
+
+enumConstantModifier:
+    annotation
+;
+
+enumBodyDeclarations:
+    ';' classBodyDeclaration*
+;
 
 interfaceDeclaration:
       normalInterfaceDeclaration
