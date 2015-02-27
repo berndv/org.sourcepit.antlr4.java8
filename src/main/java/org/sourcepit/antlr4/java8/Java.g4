@@ -32,12 +32,6 @@ primitiveType:'primitiveType';
 dims:'dims';
 additionalBound:'additionalBound';
 
-//Productions from §9 (Interfaces)
-//Deps:
-//- conditionalExpression
-//- methodBody (classes)
-annotation:'annotation';
-
 //Productions from §8 (Classes)
 //- annotation (interfaces)
 //- block
@@ -46,9 +40,129 @@ classBody:'classBody';
 classOrInterfaceType:'classOrInterfaceType';
 formalParameterList:'formalParameterList';
 
-//Productions from §10 (Arrays)
-//- variableInitializer (classes)
-arrayInitializer:'arrayInitializer';
+interfaceDeclaration:
+      normalInterfaceDeclaration
+    | annotationTypeDeclaration
+;
+
+normalInterfaceDeclaration:
+    interfaceModifier* 'interface' Identifier typeParameters? extendsInterfaces? interfaceBody
+;
+
+interfaceModifier:
+      (annotation | 'public' | 'protected' | 'private')
+    | ('abstract' | 'static' | 'strictfp')
+;
+
+extendsInterfaces:
+    'extends' interfaceTypeList
+;
+
+interfaceBody:
+    '{' interfaceMemberDeclaration* '}'
+;
+
+interfaceMemberDeclaration:
+      constantDeclaration
+    | interfaceMethodDeclaration
+    | classDeclaration
+    | interfaceDeclaration
+    | ';'
+;
+
+constantDeclaration:
+    constantModifier? unannType variableDeclaratorList ';'
+;
+
+constantModifier:
+      (annotation | 'public')
+    | ('static' | 'final')
+;
+
+interfaceMethodDeclaration:
+    interfaceMethodModifier* methodHeader methodBody
+;
+
+interfaceMethodModifier:
+      (annotation | 'public')
+    | ('abstract' | 'default' | 'static' | 'strictfp')
+;
+
+annotationTypeDeclaration:
+    interfaceModifier* '@' 'interface' Identifier annotationTypeBody
+;
+
+annotationTypeBody:
+    '{' annotationTypeMemberDeclaration* '}'
+;
+
+annotationTypeMemberDeclaration:
+      annotationTypeElementDeclaration
+    | constantDeclaration
+    | classDeclaration
+    | interfaceDeclaration
+    | ';'
+;
+
+annotationTypeElementDeclaration:
+    annotationTypeElementModifier* unannType Identifier '(' ')' dims? defaultValue? ';'
+;
+
+annotationTypeElementModifier:
+      (annotation | 'public')
+    | 'abstract'
+;
+
+defaultValue:
+    'default' ElementValue
+;
+
+annotation:
+      normalAnnotation
+    | markerAnnotation
+    | singleElementAnnotation
+;
+
+normalAnnotation:
+    '@' TypeName '(' ElementValuePairList? ')'
+;
+
+elementValuePairList:
+    elementValuePair (',' elementValuePair)*
+;
+
+elementValuePair:
+    Identifier '=' elementValue
+;
+
+elementValue:
+      conditionalExpression
+    | elementValueArrayInitializer
+    | annotation
+;
+
+elementValueArrayInitializer:
+    '{' elementValueList? ','? '}'
+;
+
+ElementValueList:
+    ElementValue {, ElementValue}
+;
+
+markerAnnotation:
+    '@' typeName
+;
+singleElementAnnotation:
+    '@' typeName '(' elementValue ')'
+;
+
+arrayInitializer:
+    '{' variableInitializerList? ','? '}'
+;
+
+variableInitializerList:
+    variableInitializer (',' variableInitializer)*
+;
 
 block:
 	'{' blockStatements? '}'
